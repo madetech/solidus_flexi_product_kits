@@ -2,6 +2,8 @@ module SolidusFlexiProductKits
   module InventoryUnitDecorator
     extend ActiveSupport::Concern
 
+    private
+
     def percentage_of_line_item
       product = line_item.product
       if product.assembly?
@@ -14,4 +16,4 @@ module SolidusFlexiProductKits
   end
 end
 
-Spree::InventoryUnit.include(SolidusFlexiProductKits::InventoryUnitDecorator)
+Spree::InventoryUnit.prepend(SolidusFlexiProductKits::InventoryUnitDecorator)
