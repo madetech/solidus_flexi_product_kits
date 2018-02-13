@@ -1,5 +1,7 @@
-module Spree
-  Shipment.class_eval do
+module SolidusFlexiProductKits
+  module ShipmentDecorator
+    extend ActiveSupport::Concern
+
     # Overriden from Spree core as a product bundle part should not be put
     # together with an individual product purchased (even though they're the
     # very same variant) That is so we can tell the store admin which units
@@ -48,3 +50,5 @@ module Spree
     end
   end
 end
+
+Spree::Shipment.prepend(SolidusFlexiProductKits::ShipmentDecorator)
