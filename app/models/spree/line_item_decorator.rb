@@ -1,6 +1,10 @@
-module Spree
-  LineItem.class_eval do
-    scope :assemblies, -> { joins(:product => :parts).distinct }
+module SolidusFlexiProductKits
+  module LineItemDecorator
+    extend ActiveSupport::Concern
+
+    included do
+      scope :assemblies, -> { joins(:product => :parts).distinct }
+    end
 
     def any_units_shipped?
       inventory_units.any? { |unit| unit.shipped? }
@@ -31,15 +35,18 @@ module Spree
     end
 
     private
-      def update_inventory
-        saved_changes = respond_to?(:saved_changes?) ? saved_changes? : changed?
-        if (saved_changes || target_shipment.present?) && self.order.has_checkout_step?("delivery")
-          if self.product.assembly?
-            OrderInventoryAssembly.new(self).verify(target_shipment)
-          else
-            OrderInventory.new(self.order, self).verify(target_shipment)
-          end
+
+    def update_inventory
+      saved_changes = respond_to?(:saved_changes?) ? saved_changes? : changed?
+      if (saved_changes || target_shipment.present?) && self.order.has_checkout_step?("delivery")
+        if self.product.assembly?
+          OrderInventoryAssembly.new(self).verify(target_shipment)
+        else
+          OrderInventory.new(self.order, self).verify(target_shipment)
         end
       end
+    end
   end
 end
+
+Spree::LineItem.include(SolidusFlexiProductKits::LineItemDecorator)
